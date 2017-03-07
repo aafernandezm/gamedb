@@ -1,0 +1,47 @@
+<div class="container">
+  <h1>Games</h1>
+  <button class="btn btn-primary" ng-click="games.resetGames()">Clear Filter</button>
+  Current Filter: {{games.filter}}
+  <table class="table table-striped">
+    <thead>
+      <th>Name</th>
+      <th>Platform</th>
+      <th>Genre</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="game in games.games">
+        <td ng-hide="game.edit">{{game.name}}</td>
+        <td ng-show="game.edit"><input type="text" ng-model="game.name"></td>
+ 
+        <td ng-hide="game.edit">
+          <a href="" ng-click="games.filterByPlatform(game.platform)">{{game.platform}}</a>
+        </td>
+        <td ng-show="game.edit"><input type="text" ng-model="game.platform"></td>
+ 
+        <td ng-hide="game.edit">
+          <a href="" ng-click="games.filterByGenre(game.genre)">{{game.genre}}</a>
+        </td>
+        <td ng-show="game.edit"><input type="text" ng-model="game.genre"></td>
+ 
+        <td ng-hide="game.edit">
+          <button class="btn btn-success" ng-click="games.toggleEdit($index)">Edit</button>
+          <button class="btn btn-danger" ng-click="games.deleteGame(game)">Delete</button>
+        </td>
+        <td ng-show="game.edit">
+          <button class="btn btn-primary" ng-click="games.saveGame($index)">Save</button>
+          <button class="btn btn-danger" ng-click="games.toggleEdit($index)">Cancel</button>
+        </td>
+      </tr>
+    </tbody>
+    <tr>
+      <td><input type="text" ng-model="games.newGame.name"></td>
+      <td><input type="text" ng-model="games.newGame.platform"></td>
+      <td><input type="text" ng-model="games.newGame.genre"></td>
+      <td>
+        <button class="btn btn-primary" ng-click="games.addGame()">Add New</button>
+      </td>
+    </tr>
+  </table>
+</div>
+</div>
