@@ -4,6 +4,7 @@ const angular = require('angular');
 export default class GamesController {
   games = [];
   originalGames = [];
+
   newGame = {
     name: '',
     platform: '',
@@ -21,12 +22,7 @@ export default class GamesController {
   }
 
   $onInit() {
-    this.$http.get('/api/games')
-      .then(response => {
-        this.games = response.data;
-        this.originalGames = response.data;
-        this.socket.syncUpdates('games', this.games);
-      });
+    this.updateView();
   }
 
   addGame() {
@@ -35,22 +31,33 @@ export default class GamesController {
         name: this.newGame.name,
         platform: this.newGame.platform,
         genre: this.newGame.genre
+      }).then(response => {
+        console.log(response);
+        this.newGame.name = '';
+        this.newGame.platform = '';
+        this.newGame.genre = '';
+
+        this.updateView();
       });
-      this.newGame = '';
     }
   }
 
   saveGame(index) {
-    this.$http.put('/api/games/' + this.games[index]._id, this.games[index]).success(function () {
+    this.$http.put('/api/games/' + this.games[index]._id, this.games[index])
+    .then(response => {
+      console.log(response);
       this.games[index].edit = false;
-    })
-    .error(function(err) {
-      alert('Error! Something went wrong');
+      this.updateView();
     });
   }
 
   deleteGame(game) {
-    this.$http.delete(`/api/games/${game._id}`);
+    if(game) {
+      this.$http.delete(`/api/games/${game._id}`).then(response => {
+        console.log(response);
+        this.updateView();
+      });
+    }
   }
 
   toggleEdit($index) {
@@ -76,6 +83,15 @@ export default class GamesController {
       return game.platform === platform;
     });
     this.filter = 'Platform: ' + platform;
+  }
+
+  updateView() {
+    this.$http.get('/api/games')
+      .then(response => {
+        this.games = response.data;
+        this.originalGames = response.data;
+        this.socket.syncUpdates('games', this.games);
+      });
   }
 
 }
