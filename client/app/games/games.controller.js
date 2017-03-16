@@ -8,13 +8,16 @@ export default class GamesController {
   newGame = {
     name: '',
     platform: '',
-    genre: ''
+    genre: '',
+    postedBy: ''
   };
 
   /*@ngInject*/
-  constructor($http, $scope, socket) {
+  constructor($http, $scope, socket, Auth) {
     this.$http = $http;
+    this.$scope = $scope;
     this.socket = socket;
+    this.auth = Auth;
 
     $scope.$on('$destroy', function() {
       socket.unsyncUpdates('games');
@@ -27,16 +30,18 @@ export default class GamesController {
 
   addGame() {
     if(this.newGame) {
+      let currUser = this.auth.getCurrentUserSync();
       this.$http.post('/api/games', {
         name: this.newGame.name,
         platform: this.newGame.platform,
-        genre: this.newGame.genre
+        genre: this.newGame.genre,
+        postedBy: currUser._id
       }).then(response => {
         console.log(response);
         this.newGame.name = '';
         this.newGame.platform = '';
         this.newGame.genre = '';
-
+        this.newGame.postedBy = '';
         this.updateView();
       });
     }
@@ -86,12 +91,19 @@ export default class GamesController {
   }
 
   updateView() {
-    this.$http.get('/api/games')
+    let endpoint = '';
+
+    if(this.auth.isAdminSync()) {
+      endpoint = '/api/games';
+    } else {
+      endpoint = '/api/users/me/games';
+    }
+
+    this.$http.get(endpoint)
       .then(response => {
         this.games = response.data;
         this.originalGames = response.data;
         this.socket.syncUpdates('games', this.games);
       });
   }
-
 }

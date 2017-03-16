@@ -1,6 +1,7 @@
 'use strict';
 
 import User from './user.model';
+import Game from '../game/game.model';
 import config from '../../config/environment';
 import jwt from 'jsonwebtoken';
 
@@ -110,6 +111,22 @@ export function me(req, res, next) {
         return res.status(401).end();
       }
       res.json(user);
+    })
+    .catch(err => next(err));
+}
+
+/**
+ * Get my games
+ */
+export function myGames(req, res, next) {
+  var userId = req.user._id;
+
+  return Game.find({ postedBy: userId }, '-salt -password').exec()
+    .then(games => { // don't ever give out the password or salt
+      if(!games) {
+        return res.status(401).end();
+      }
+      res.json(games);
     })
     .catch(err => next(err));
 }
